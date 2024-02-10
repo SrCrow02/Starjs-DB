@@ -6,7 +6,7 @@
 
 # StarJS-DB
 
-O `starjs-db` é um pacote de banco de dados simples para armazenar e gerenciar dados em seus projetos JavaScript/TypeScript.
+O `starjs-db` é um pacote de banco de dados simples para armazenar e gerenciar dados em seus projetos JavaScript/TypeScript Especialmente com Bots do Discord.
 
 ## Instalação
 
