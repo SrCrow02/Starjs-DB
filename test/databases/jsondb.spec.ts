@@ -39,7 +39,11 @@ export class JsonDBManager {
         const data = this.get();
         const existingIndex = data.findIndex((item: any) => item.key === key);
         if (existingIndex !== -1) {
-            data[existingIndex].value = value;
+            if (typeof data[existingIndex].value === 'number' && typeof value === 'number') {
+                data[existingIndex].value += value;
+            } else {
+                data[existingIndex].value = value;
+            }
         } else {
             const newData: KeyValueData = { key, value };
             data.push(newData);
@@ -78,16 +82,18 @@ describe('JsonDBManager', () => {
     });
     
     it('Test add and get', async () => {
-        await db.add('teste', 'teste');
-        await db.add(`user_${num}`, `${num2}`);
+        await db.add('teste', 2);
+        await db.add(`user_${num}`, 'oi');
 
         console.log(await db.get());
 
     }); '';
     it('Test set and get', async () => {
-        await db.update('teste', 'a');
+        await db.add('teste', 3);
+        await db.add(`user_${num}`, 'ola');
 
         console.log(await db.getById('teste'));
+        console.log(await db.getById(`user_${num}`));
     }); '';
     
     it('Test delete and get', async () => {

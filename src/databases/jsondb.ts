@@ -39,7 +39,11 @@ export class JsonDBManager {
         const data = this.get();
         const existingIndex = data.findIndex((item: any) => item.key === key);
         if (existingIndex !== -1) {
-            data[existingIndex].value = value;
+            if (typeof data[existingIndex].value === 'number' && typeof value === 'number') {
+                data[existingIndex].value += value;
+            } else {
+                data[existingIndex].value = value;
+            }
         } else {
             const newData: KeyValueData = { key, value };
             data.push(newData);
