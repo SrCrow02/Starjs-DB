@@ -23,15 +23,17 @@ class Database {
         }
         return Database.instance;
     }
-    add(key, value) {
-        this.db.run('INSERT OR REPLACE INTO data (key, value) VALUES (?, ?)', [key, value], (err) => {
-            if (err) {
-                console.error('Erro ao inserir dados:', err);
-            }
-            else {
-                console.log('Dados inseridos com sucesso!');
-            }
-        });
+    async add(key, value) {
+        const existingValue = await this.get(key);
+        if (existingValue !== undefined) {
+            const newValue = typeof existingValue === 'number' && typeof value === 'number'
+                ? existingValue + value
+                : value;
+            await this.set(key, newValue.toString());
+        }
+        else {
+            await this.set(key, value.toString());
+        }
     }
     async get(key) {
         return new Promise((resolve, reject) => {
@@ -48,13 +50,13 @@ class Database {
     }
     async set(key, value) {
         return new Promise((resolve, reject) => {
-            this.db.run('UPDATE data SET value = ? WHERE key = ?', [value, key], (err) => {
+            this.db.run('INSERT OR REPLACE INTO data (key, value) VALUES (?, ?)', [key, value], (err) => {
                 if (err) {
-                    console.error('Erro ao atualizar dados:', err);
+                    console.error('Erro ao inserir ou atualizar dados:', err);
                     reject(err);
                 }
                 else {
-                    console.log('Dados atualizados com sucesso!');
+                    console.log('Dados inseridos ou atualizados com sucesso!');
                     resolve();
                 }
             });

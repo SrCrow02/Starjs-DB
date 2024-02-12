@@ -5,7 +5,7 @@ interface Row {
 }
 
 export default class Database {
-    private static instance: Database | null = null; 
+    private static instance: Database | null = null;
     private db: sqlite3.Database;
 
     private constructor(databaseName: string) {
@@ -27,14 +27,17 @@ export default class Database {
         return Database.instance;
     }
 
-    public add(key: string, value: string): void {
-        this.db.run('INSERT OR REPLACE INTO data (key, value) VALUES (?, ?)', [key, value], (err) => {
-            if (err) {
-                console.error('Erro ao inserir dados:', err);
-            } else {
-                console.log('Dados inseridos com sucesso!');
-            }
-        });
+    public async add(key: string, value: string | number): Promise<void> {
+        const existingValue = await this.get(key);
+
+        if (existingValue !== undefined) {
+            const newValue = typeof existingValue === 'number' && typeof value === 'number'
+                ? existingValue + value
+                : value;
+            await this.set(key, newValue.toString());
+        } else {
+            await this.set(key, value.toString());
+        }
     }
 
     public async get(key: string): Promise<string | undefined> {
@@ -52,23 +55,17 @@ export default class Database {
 
     public async set(key: string, value: string): Promise<void> {
         return new Promise((resolve, reject) => {
-            this.db.run('UPDATE data SET value = ? WHERE key = ?', [value, key], (err: Error, row: Row) => {
-                if (!row) {
-                    this.add(key, value);
-                    console.log('Dado não existente, criado agora.');
-                }
-
+            this.db.run('INSERT OR REPLACE INTO data (key, value) VALUES (?, ?)', [key, value], (err) => {
                 if (err) {
-                    console.error('Erro ao atualizar dados:', err);
+                    console.error('Erro ao inserir ou atualizar dados:', err);
                     reject(err);
                 } else {
-                    console.log('Dados atualizados com sucesso!');
+                    console.log('Dados inseridos ou atualizados com sucesso!');
                     resolve();
                 }
             });
         });
     }
-
 
     public async delete(key: string): Promise<void> {
         return new Promise((resolve, reject) => {
