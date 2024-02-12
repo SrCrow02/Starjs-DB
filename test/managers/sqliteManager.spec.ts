@@ -1,4 +1,5 @@
-import Database from '../databases/sqlitedb';
+import { describe } from 'node:test';
+import Database from '../databases/sqlitedb.spec';
 
 let dbInstance: Database | null = null;
 
